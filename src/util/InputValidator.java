@@ -42,33 +42,25 @@ public class InputValidator {
             System.out.print(prompt);
             String date = scanner.nextLine().trim();
 
-            // Verifica se a data tem exatamente 8 dígitos (sem barras)
-            if (date.matches("\\d{8}")) {
+            // Verifica se a data tem o formato dd/MM/yyyy com as barras
+            if (date.matches("\\d{2}/\\d{2}/\\d{4}")) {
                 try {
-                    // Tenta formatar a data para o formato dd/MM/yyyy
-                    String formattedDate = formatDate(date);
                     // Verifica se a data é válida
                     sdf.setLenient(false);  // Desativa a análise "leniente" (ex.: 32/13/2024 será rejeitada)
-                    sdf.parse(formattedDate);  // Tenta analisar a data
-                    return formattedDate;  // Se a data for válida, retorna no formato dd/MM/yyyy
+                    sdf.parse(date);  // Tenta analisar a data
+                    return date;  // Se a data for válida, retorna no formato dd/MM/yyyy
                 } catch (ParseException e) {
-                    System.out.println("Data inválida. Use o formato ddMMyyyy.");
+                    System.out.println("Data inválida. Use o formato dd/MM/yyyy.");
                 }
             } else {
-                System.out.println("Formato inválido. Use exatamente 8 dígitos no formato ddMMyyyy.");
+                System.out.println("Formato inválido. Use exatamente o formato dd/MM/yyyy.");
             }
         }
     }
 
-    // Formata a data de ddMMyyyy para dd/MM/yyyy
-    public static String formatDate(String date) {
-        return date.substring(0, 2) + "/" + date.substring(2, 4) + "/" + date.substring(4, 8);
-    }
-
-    // Método para fazer o parse da data no formato dd/MM/yyyy para java.util.Date
     public static java.util.Date parseDate(String date) {
         try {
-            return sdf.parse(formatDate(date));  // Converte para java.util.Date
+            return sdf.parse(date);  // Converte para java.util.Date
         } catch (ParseException e) {
             throw new RuntimeException("Erro ao interpretar a data.");
         }
