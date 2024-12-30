@@ -1,10 +1,13 @@
 package service;
 
 import model.Video;
+import strategy.SearchStrategy;
 
 import java.util.List;
 
 public interface VideoService {
     void addVideo(Video video);
-    List<Video> listVideos();
+    void removeVideo(String title);
+    List<Video> getAllVideos();
+    List<Video> searchVideos(SearchStrategy strategy);
 }
