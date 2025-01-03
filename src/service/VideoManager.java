@@ -1,6 +1,7 @@
 package service;
 
 import model.Video;
+
 import strategy.SearchStrategy;
 import strategy.TitleSearchStrategy;
 import util.InputValidator;
@@ -11,11 +12,9 @@ import java.util.stream.Collectors;
 public class VideoManager {
     private final Scanner scanner = new Scanner(System.in);
     private final VideoService videoService;
-    private final SearchStrategy searchStrategy;
 
     public VideoManager() {
         this.videoService = new VideoServiceImpl(new repository.FileVideoRepository("videos.txt"));
-        this.searchStrategy = new TitleSearchStrategy();  // Usando a estratégia de busca por título
     }
 
     public void start() {
@@ -26,7 +25,7 @@ public class VideoManager {
             switch (option) {
                 case 1 -> addVideo();
                 case 2 -> listVideos();
-                case 3 -> searchVideos();
+                case 3 -> searchVideos();  // Aqui a busca é feita diretamente pelo título
                 case 4 -> editVideo();
                 case 5 -> removeVideo();
                 case 6 -> filterByCategory();
@@ -90,11 +89,14 @@ public class VideoManager {
     }
 
     private void searchVideos() {
-        String query = InputValidator.readNonEmptyInput(scanner, "Digite o título para busca: ");
-        List<Video> results = searchStrategy.search(videoService.getAllVideos(), query);
+        String title = InputValidator.readNonEmptyInput(scanner, "Digite o título do vídeo para busca: ");
+        SearchStrategy titleSearchStrategy = new TitleSearchStrategy();
+
+        // Buscar diretamente por título
+        List<Video> results = videoService.searchVideos(titleSearchStrategy, title);
 
         if (results.isEmpty()) {
-            System.out.println("Nenhum vídeo encontrado para o título: " + query);
+            System.out.println("Nenhum vídeo encontrado para o título: " + title);
         } else {
             results.forEach(System.out::println);
         }
@@ -109,13 +111,24 @@ public class VideoManager {
             String newTitle = InputValidator.readNonEmptyInput(scanner, "Novo título: ");
             String newDescription = InputValidator.readNonEmptyInput(scanner, "Nova descrição: ");
             int newDuration = InputValidator.readPositiveNumber(scanner, "Nova duração (em minutos): ");
-            String newCategory = InputValidator.readNonEmptyInput(scanner, "Nova categoria (Filme, Série, Documentário): ");
+
+            // Garantir que a categoria seja válida
+            String newCategory;
+            while (true) {
+                newCategory = InputValidator.readNonEmptyInput(scanner, "Nova categoria (Filme, Série, Documentário): ");
+                if (newCategory.equalsIgnoreCase("Filme") || newCategory.equalsIgnoreCase("Série") || newCategory.equalsIgnoreCase("Documentário")) {
+                    break; // Categoria válida, sai do laço
+                } else {
+                    System.out.println("Categoria inválida. Tente novamente.");
+                }
+            }
+
             String newPublicationDate = InputValidator.readValidDate(scanner, "Nova data de publicação (dd/MM/yyyy): ");
 
             videoToEdit.setTitle(newTitle);
             videoToEdit.setDescription(newDescription);
             videoToEdit.setDuration(newDuration);
-            videoToEdit.setCategory(newCategory);
+            videoToEdit.setCategory(newCategory);  // Categoria agora é validada
             videoToEdit.setPublicationDate(newPublicationDate);
 
             videoService.updateVideo(videoToEdit);
