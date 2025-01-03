@@ -11,7 +11,7 @@ public class Video {
     private String category;
     private Date publicationDate;
 
-    // Construtor com todos os parâmetros necessários
+
     public Video(String title, String description, double duration, String category, String publicationDate) {
         setTitle(title);
         setDescription(description);
@@ -64,6 +64,7 @@ public class Video {
         }
         this.category = category;
     }
+
 
     public Date getPublicationDate() {
         return publicationDate;
